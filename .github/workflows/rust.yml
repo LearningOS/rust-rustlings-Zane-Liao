@@ -1,0 +1,34 @@
+name: GitHub Classroom Workflow
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - '.github/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  TZ: Asia/Shanghai # 设置时区
+
+jobs:
+  build:
+    name: Autograding
+    runs-on: ubuntu-latest
+    outputs:
+      details: ${{ steps.autograding.outputs.details }}
+      points: ${{ steps.autograding.outputs.points}}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: checkouttoml
+      run: curl -o check.toml https://raw.githubusercontent.com/livstyle/os-autograding-rust/main/check.toml
+    - name: Run tests
+      run: cargo test --test check --verbose
+    - uses: yfblock/os-autograding@master
+      id: autograding
+      with:
+        outputFile: .github/result/check_result.json
